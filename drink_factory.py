@@ -74,7 +74,3 @@ for drink_index in drink_menu.index:
 myButton = Button(root, text='test')
 myButton.pack()
 root.mainloop()
-
-#Test inputs to try functionality of control flow
-test_order = OrderItem(input('Drink size?   '), input('Drink type?  '), input('Drink base?   '), *input('Add-Ins?    ').split(', '))
-print(test_order)
