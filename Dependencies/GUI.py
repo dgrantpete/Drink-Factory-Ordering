@@ -17,7 +17,7 @@ root.iconbitmap("dependencies\drink_factory_logo.ico")
 right_frame = tk.Frame(root)
 right_frame.place(relx=.75, relwidth=.25, relheight=1)
 
-left_frame = tk.Frame(root, bg="blue")
+left_frame = tk.Frame(root)
 left_frame.place(relwidth=.75, relheight=1)
 
 edit_del_frame = tk.Frame(right_frame)
