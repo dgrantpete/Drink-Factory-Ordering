@@ -20,11 +20,9 @@ class OrderItem:
             summary += f"\n+{add_in}"
         return summary
 
-
 #Importing Menu Information and converting to dictionaries
 with open("menu.json") as menu_file:
     json_data = json.load(menu_file)
     prices = json_data["prices"]
     base_drinks = json_data["base drinks"]
-
-GUI.start_gui()
+    
