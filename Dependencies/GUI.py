@@ -7,7 +7,17 @@ INITIAL_HEIGHT = 800
 
 #Menu Columns and Rows
 MENU_ROWS = 6
-MENU_COLUMNS = 3
+MENU_COLUMNS = 5
+
+#Function to add Item to Menu Grid
+def add_grid_item(item):
+    grid_position = len(order_left_frame.winfo_children())
+    print(grid_position)
+    grid_button = ttk.Button(order_left_frame, text=item)
+    row = grid_position // MENU_COLUMNS
+    column = grid_position % MENU_COLUMNS
+    grid_button.grid(row=row, column=column, sticky="nesw", padx=10, pady=10)
+
 
 #Main Window Configuration
 root = tk.Tk()
@@ -59,8 +69,3 @@ for row in range(MENU_ROWS):
     order_left_frame.rowconfigure(row, weight=1)
 for column in range(MENU_COLUMNS):
     order_left_frame.columnconfigure(column, weight=1)
-for row in range(MENU_ROWS):
-    for column in range(MENU_COLUMNS):
-        ttk.Button(order_left_frame, text="test").grid(row=row, column=column, sticky="nesw", padx=10, pady=10)
-
-root.mainloop()
