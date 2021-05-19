@@ -19,12 +19,24 @@ def add_grid_item(item):
     column = grid_position % MENU_COLUMNS
     grid_button.grid(row=row, column=column, sticky="nesw", padx=10, pady=10)
 
+#Function to add sizes to Edit Menu
+def add_sizes(sizes):
+    size_list_frame.columnconfigure(0, weight=1)
+    for i, size in enumerate(sizes):
+        size_list_frame.rowconfigure(i, weight=1)
+        size_radio = ttk.Radiobutton(size_list_frame, text=size, variable="size", value=size)
+        size_radio.grid(row=i, column=0)
 
 #Main Window Configuration
 root = tk.Tk()
 root.title('Drink Factory Ordering')
 root.iconbitmap('dependencies\drink_factory_logo.ico')
 root.geometry(f'{INITIAL_WIDTH}x{INITIAL_HEIGHT}')
+
+#Style Configuration
+style = ttk.Style(root)
+style.configure("TRadiobutton", font=("Helvetica", 40))
+
 
 #Menu Selection
 menus = ttk.Notebook(root)
@@ -79,3 +91,13 @@ for row in range(MENU_ROWS):
     order_left_frame.rowconfigure(row, weight=1)
 for column in range(MENU_COLUMNS):
     order_left_frame.columnconfigure(column, weight=1)
+
+#Item Editing Menu
+edit_menu = tk.Frame(menus)
+edit_menu.place(relheight=1, relwidth=1)
+menus.add(edit_menu, text="Edit")
+
+#Size List Frame Config
+size_list_frame = tk.Frame(edit_menu, bg='blue')
+size_list_frame.place(relheight=0.4, relwidth=0.2)
+
