@@ -27,6 +27,20 @@ def add_sizes(sizes):
         size_radio = ttk.Radiobutton(size_list_frame, text=size, variable="size", value=size)
         size_radio.grid(row=i, column=0)
 
+#Function to add Add-Ins to Edit Menu
+def add_add_ins(add_ins):
+    
+    row_count = (len(add_ins) // 3) + 1
+    for row in range(row_count):
+        add_ins_frame.rowconfigure(row, weight=1)
+    for i, add_in in enumerate(add_ins):
+        add_check_state[add_in] = tk.IntVar()
+        add_in_check = ttk.Checkbutton(add_ins_frame, text=add_in, variable=add_check_state[add_in])
+        row = i // 3
+        column = i % 3
+        add_in_check.grid(row=row, column=column, sticky="nesw", padx=3, pady=3)
+
+
 #Main Window Configuration
 root = tk.Tk()
 root.title('Drink Factory Ordering')
@@ -35,8 +49,8 @@ root.geometry(f'{INITIAL_WIDTH}x{INITIAL_HEIGHT}')
 
 #Style Configuration
 style = ttk.Style(root)
-style.configure("TRadiobutton", font=("Helvetica", 40))
-
+style.configure("TRadiobutton", font=("Helvetica", 60))
+style.configure("TCheckbutton", font=("Helvetica", 20))
 
 #Menu Selection
 menus = ttk.Notebook(root)
@@ -98,6 +112,15 @@ edit_menu.place(relheight=1, relwidth=1)
 menus.add(edit_menu, text="Edit")
 
 #Size List Frame Config
-size_list_frame = tk.Frame(edit_menu, bg='blue')
-size_list_frame.place(relheight=0.4, relwidth=0.2)
+size_list_frame = tk.Frame(edit_menu)
+size_list_frame.place(relheight=1, relwidth=.2)
+
+#Add-Ins Frame Config
+add_ins_frame = tk.Frame(edit_menu)
+add_ins_frame.place(relheight=1, relwidth=.6, relx=.2)
+for column in range(3):
+    add_ins_frame.columnconfigure(column, weight=1)
+
+add_check_state = {}
+
 

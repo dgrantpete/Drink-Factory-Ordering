@@ -1,7 +1,7 @@
 import os
 import json
 from Dependencies import LabelPrinting
-from Dependencies.GUI import root, add_grid_item, add_sizes
+from Dependencies.GUI import root, add_grid_item, add_sizes, add_add_ins
 
 class OrderItem:
     def __init__(self, base_item, size, add_ins=None):
@@ -27,11 +27,18 @@ with open("menu.json") as menu_file:
     prices = json_data["prices"]
     base_drinks = json_data["base drinks"]
 
+#Temporary Add-In List
+add_ins_list = set()
+for drink in base_drinks.values():
+    add_ins_list |= set(drink)
+
 #Adding Menu Buttons for Drinks
 for drink in base_drinks:
     add_grid_item(drink)
 
 #Adding Drink Sizes to Edit Menu
 add_sizes(prices["sizes"])
+
+add_add_ins(add_ins_list)
 
 root.mainloop()
