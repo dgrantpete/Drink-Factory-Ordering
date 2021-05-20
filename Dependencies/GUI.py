@@ -1,6 +1,10 @@
 import tkinter as tk
 from tkinter import ttk
 
+#Font Sizes
+ADD_IN_FONT_SIZE = 10
+SIZE_FONT_SIZE = 40
+
 #Initial Window Size Configuration
 INITIAL_WIDTH = 1600
 INITIAL_HEIGHT = 800
@@ -9,7 +13,10 @@ INITIAL_HEIGHT = 800
 MENU_ROWS = 10
 MENU_COLUMNS = 5
 
-#Function to add Item to Menu Grid
+#Edit Menu Add-In Columns
+ADD_IN_COLUMNS = 4
+
+#Adds single item to Menu Grid
 def add_grid_item(item):
     command = lambda:order_list.insert(tk.END, item)
 
@@ -19,26 +26,47 @@ def add_grid_item(item):
     column = grid_position % MENU_COLUMNS
     grid_button.grid(row=row, column=column, sticky="nesw", padx=10, pady=10)
 
-#Function to add sizes to Edit Menu
+#Adds sizes to Edit Menu
 def add_sizes(sizes):
     size_list_frame.columnconfigure(0, weight=1)
     for i, size in enumerate(sizes):
         size_list_frame.rowconfigure(i, weight=1)
-        size_radio = ttk.Radiobutton(size_list_frame, text=size, variable="size", value=size)
+        size_radio = ttk.Radiobutton(size_list_frame, text=size, variable=size_variable, value=size)
         size_radio.grid(row=i, column=0)
 
-#Function to add Add-Ins to Edit Menu
+#Adds Add-Ins to Edit Menu
 def add_add_ins(add_ins):
-    
-    row_count = (len(add_ins) // 3) + 1
+    row_count = (len(add_ins) // ADD_IN_COLUMNS) + 1
     for row in range(row_count):
         add_ins_frame.rowconfigure(row, weight=1)
     for i, add_in in enumerate(add_ins):
         add_check_state[add_in] = tk.IntVar()
         add_in_check = ttk.Checkbutton(add_ins_frame, text=add_in, variable=add_check_state[add_in])
-        row = i // 3
-        column = i % 3
+        row = i // ADD_IN_COLUMNS
+        column = i % ADD_IN_COLUMNS
         add_in_check.grid(row=row, column=column, sticky="nesw", padx=3, pady=3)
+
+#Returns a List of Selected Add-Ins
+def return_add_ins():
+    add_ins_list = []
+    for add_in, result in add_check_state.items():
+        if result.get() == 1:
+            add_ins_list.append(add_in)
+    return add_ins_list
+
+#Clears Edit Menu Selections
+def clear_edit_menu():
+    for value in add_check_state.values():
+        value.set(0)
+    size_variable.set("")
+
+#Sets Edit Menu to Options Specified by OrderItem object
+def drink_edit(order_item):
+    clear_edit_menu()
+    size_variable.set(order_item.size)
+    for add_in in order_item.add_ins:
+        (add_check_state[add_in]).set(1)
+    menus.select(edit_menu)
 
 
 #Main Window Configuration
@@ -49,8 +77,8 @@ root.geometry(f'{INITIAL_WIDTH}x{INITIAL_HEIGHT}')
 
 #Style Configuration
 style = ttk.Style(root)
-style.configure("TRadiobutton", font=("Helvetica", 60))
-style.configure("TCheckbutton", font=("Helvetica", 20))
+style.configure("TRadiobutton", font=("Helvetica", SIZE_FONT_SIZE))
+style.configure("TCheckbutton", font=("Helvetica", ADD_IN_FONT_SIZE))
 
 #Menu Selection
 menus = ttk.Notebook(root)
@@ -92,7 +120,7 @@ submit_button = ttk.Button(order_control, text="Submit")
 submit_button.grid(row=1, column=0, columnspan=2, sticky="nesw", padx=5, pady=5)
 
 #Edit Button
-edit_button = ttk.Button(order_control, text="Edit")
+edit_button = ttk.Button(order_control, text="Edit", command=clear_edit_menu)
 edit_button.grid(row=0, column=0, sticky="nesw", padx=5, pady=5)
 
 #Delete Button
@@ -115,6 +143,8 @@ menus.add(edit_menu, text="Edit")
 size_list_frame = tk.Frame(edit_menu)
 size_list_frame.place(relheight=1, relwidth=.2)
 
+size_variable = tk.StringVar()
+
 #Add-Ins Frame Config
 add_ins_frame = tk.Frame(edit_menu)
 add_ins_frame.place(relheight=1, relwidth=.6, relx=.2)
@@ -122,5 +152,4 @@ for column in range(3):
     add_ins_frame.columnconfigure(column, weight=1)
 
 add_check_state = {}
-
 
