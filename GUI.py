@@ -1,5 +1,12 @@
 import tkinter as tk
 from tkinter import ttk
+from menu_logic import menu_import
+
+"""
+
+User Configurable Variables
+
+"""
 
 #Font Sizes
 ADD_IN_FONT_SIZE = 10
@@ -15,6 +22,12 @@ MENU_COLUMNS = 5
 
 #Edit Menu Add-In Columns
 ADD_IN_COLUMNS = 4
+
+"""
+
+GUI Driving Functions
+
+"""
 
 #Adds single item to Menu Grid
 def add_grid_item(item):
@@ -68,6 +81,19 @@ def drink_edit(order_item):
         (add_check_state[add_in]).set(1)
     menus.select(edit_menu)
 
+"""
+
+Menu Data Configuration
+
+"""
+
+sizes, add_ins_list, base_drinks, add_ins_list = menu_import()
+
+"""
+
+Root Configuration
+
+"""
 
 #Main Window Configuration
 root = tk.Tk()
@@ -80,6 +106,12 @@ style = ttk.Style(root)
 style.configure("TRadiobutton", font=("Helvetica", SIZE_FONT_SIZE))
 style.configure("TCheckbutton", font=("Helvetica", ADD_IN_FONT_SIZE))
 
+"""
+
+Menus Configuration
+
+"""
+
 #Menu Selection
 menus = ttk.Notebook(root)
 menus.place(relwidth=1, relheight=1)
@@ -89,6 +121,17 @@ order_menu = tk.Frame(menus)
 order_menu.place(relheight=1, relwidth=1)
 menus.add(order_menu, text="Order")
 
+#Editing Menu Config
+edit_menu = tk.Frame(menus)
+edit_menu.place(relheight=1, relwidth=1)
+menus.add(edit_menu, text="Edit")
+
+"""
+
+Ordering Menu Setup
+
+"""
+
 #Ordering Menu Right Frame Config
 order_right_frame = tk.Frame(order_menu)
 order_right_frame.place(relheight=1, relwidth=.25, relx=.75)
@@ -96,6 +139,10 @@ order_right_frame.place(relheight=1, relwidth=.25, relx=.75)
 #Ordering Menu Left Frame Config
 order_left_frame = tk.Frame(order_menu)
 order_left_frame.place(relheight=1, relwidth=.75)
+
+#Adding Menu Buttons for Drinks
+for drink in base_drinks:
+    add_grid_item(drink)
 
 #Ordering Menu List Frame Config
 order_list_frame = tk.Frame(order_right_frame)
@@ -128,22 +175,26 @@ delete_command = lambda:order_list.delete(order_list.curselection())
 delete_button = ttk.Button(order_control, text="Delete", command=delete_command)
 delete_button.grid(row=0, column=1, sticky="nesw", padx=5, pady=5)
 
-#Menu Buttons Config
+#Menu Item Buttons Config
 for row in range(MENU_ROWS):
     order_left_frame.rowconfigure(row, weight=1)
 for column in range(MENU_COLUMNS):
     order_left_frame.columnconfigure(column, weight=1)
 
-#Item Editing Menu
-edit_menu = tk.Frame(menus)
-edit_menu.place(relheight=1, relwidth=1)
-menus.add(edit_menu, text="Edit")
+"""
+
+Edit Menu Setup
+
+"""
 
 #Size List Frame Config
 size_list_frame = tk.Frame(edit_menu)
 size_list_frame.place(relheight=1, relwidth=.2)
 
 size_variable = tk.StringVar()
+
+#Adding Drink Sizes to Edit Menu
+add_sizes(sizes)
 
 #Add-Ins Frame Config
 add_ins_frame = tk.Frame(edit_menu)
@@ -153,3 +204,7 @@ for column in range(3):
 
 add_check_state = {}
 
+#Adding Add-Ins to Edit Menu
+add_add_ins(add_ins_list)
+
+root.mainloop()
