@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
-from menu_logic import menu_import
+from menu_logic import menu_import, OrderItem, Menu, CurrentOrderItem
+from Dependencies.LabelPrinting import print_label
 
 """
 
@@ -9,7 +10,7 @@ User Configurable Variables
 """
 
 #Font Sizes
-ADD_IN_FONT_SIZE = 10
+ADD_IN_FONT_SIZE = 15
 SIZE_FONT_SIZE = 40
 
 #Initial Window Size Configuration
@@ -21,7 +22,7 @@ MENU_ROWS = 10
 MENU_COLUMNS = 5
 
 #Edit Menu Add-In Columns
-ADD_IN_COLUMNS = 4
+ADD_IN_COLUMNS = 3
 
 """
 
@@ -31,7 +32,7 @@ GUI Driving Functions
 
 #Adds single item to Menu Grid
 def add_grid_item(item):
-    command = lambda:order_list.insert(tk.END, item)
+    command = lambda: drink_new(item)
 
     grid_position = len(order_left_frame.winfo_children())
     grid_button = ttk.Button(order_left_frame, text=item, command=command)
@@ -57,21 +58,31 @@ def add_add_ins(add_ins):
         add_in_check = ttk.Checkbutton(add_ins_frame, text=add_in, variable=add_check_state[add_in])
         row = i // ADD_IN_COLUMNS
         column = i % ADD_IN_COLUMNS
+        add_in_check.configure()
         add_in_check.grid(row=row, column=column, sticky="nesw", padx=3, pady=3)
 
 #Returns a List of Selected Add-Ins
 def return_add_ins():
-    add_ins_list = []
+    current_add_ins = []
     for add_in, result in add_check_state.items():
         if result.get() == 1:
-            add_ins_list.append(add_in)
-    return add_ins_list
+            current_add_ins.append(add_in)
+    return current_add_ins
 
 #Clears Edit Menu Selections
 def clear_edit_menu():
     for value in add_check_state.values():
         value.set(0)
     size_variable.set("")
+
+#Creates New Drink in Edit Menu
+def drink_new(drink):
+    clear_edit_menu()
+    current_item.base_item = drink
+    for add_in in menu.base_drinks[drink]:
+        (add_check_state[add_in]).set(1)
+    menus.select(edit_menu)
+    return drink
 
 #Sets Edit Menu to Options Specified by OrderItem object
 def drink_edit(order_item):
@@ -81,13 +92,40 @@ def drink_edit(order_item):
         (add_check_state[add_in]).set(1)
     menus.select(edit_menu)
 
+#Returns OrderItem Object with Options Specified in Edit Menu
+def return_active_item():
+    return OrderItem(current_item.base_item, size_variable.get(), return_add_ins())
+
+#Adds Drink with Currently Selected Options to Order List and Prints Label
+def add_active_item():
+    active_drink = return_active_item()
+    current_order_items.append(active_drink)
+    order_list.insert("end", active_drink)
+    #print_label(active_drink.summary())
+    menus.select(order_menu)
+    menus.hide(edit_menu)
+    clear_edit_menu()
+
+#Opens Edit Menu Configured to Selected Item
+def edit_selected():
+    drink_edit(current_order_items[order_list.curselection()[0]])
+
+#Delete Selected Item from current_order_items and order_list
+def remove_selected():
+    current_order_items.pop(order_list.curselection()[0])
+    order_list.delete(order_list.curselection()[0])
+
 """
 
 Menu Data Configuration
 
 """
 
-sizes, add_ins_list, base_drinks, add_ins_list = menu_import()
+menu = menu_import()
+
+current_item = CurrentOrderItem()
+
+current_order_items = []
 
 """
 
@@ -104,7 +142,17 @@ root.geometry(f'{INITIAL_WIDTH}x{INITIAL_HEIGHT}')
 #Style Configuration
 style = ttk.Style(root)
 style.configure("TRadiobutton", font=("Helvetica", SIZE_FONT_SIZE))
-style.configure("TCheckbutton", font=("Helvetica", ADD_IN_FONT_SIZE))
+style.configure("TCheckbutton", font=("Helvetica", ADD_IN_FONT_SIZE), background="#ebebeb")
+
+style.map("TCheckbutton",
+    foreground=[('selected', 'red')],
+    background=[('selected', '#b0b0b0')]
+    )
+
+style.map("TRadiobutton",
+    foreground=[('selected', 'red')],
+    background=[('selected', '#b0b0b0')]
+    )
 
 """
 
@@ -125,6 +173,7 @@ menus.add(order_menu, text="Order")
 edit_menu = tk.Frame(menus)
 edit_menu.place(relheight=1, relwidth=1)
 menus.add(edit_menu, text="Edit")
+menus.hide(edit_menu)
 
 """
 
@@ -134,14 +183,14 @@ Ordering Menu Setup
 
 #Ordering Menu Right Frame Config
 order_right_frame = tk.Frame(order_menu)
-order_right_frame.place(relheight=1, relwidth=.25, relx=.75)
+order_right_frame.place(relheight=1, relwidth=.4, relx=.6)
 
 #Ordering Menu Left Frame Config
 order_left_frame = tk.Frame(order_menu)
-order_left_frame.place(relheight=1, relwidth=.75)
+order_left_frame.place(relheight=1, relwidth=.6)
 
 #Adding Menu Buttons for Drinks
-for drink in base_drinks:
+for drink in menu.base_drinks:
     add_grid_item(drink)
 
 #Ordering Menu List Frame Config
@@ -159,7 +208,7 @@ for column in range(2):
     order_control.columnconfigure(column, weight=1)
 
 #Order List
-order_list = tk.Listbox(order_list_frame)
+order_list = tk.Listbox(order_list_frame, font=10)
 order_list.pack(padx=10, pady=10, expand=True, fill="both")
 
 #Submit Button
@@ -167,12 +216,11 @@ submit_button = ttk.Button(order_control, text="Submit")
 submit_button.grid(row=1, column=0, columnspan=2, sticky="nesw", padx=5, pady=5)
 
 #Edit Button
-edit_button = ttk.Button(order_control, text="Edit", command=clear_edit_menu)
+edit_button = ttk.Button(order_control, text="Edit", command=edit_selected)
 edit_button.grid(row=0, column=0, sticky="nesw", padx=5, pady=5)
 
 #Delete Button
-delete_command = lambda:order_list.delete(order_list.curselection())
-delete_button = ttk.Button(order_control, text="Delete", command=delete_command)
+delete_button = ttk.Button(order_control, text="Delete", command=remove_selected)
 delete_button.grid(row=0, column=1, sticky="nesw", padx=5, pady=5)
 
 #Menu Item Buttons Config
@@ -194,7 +242,7 @@ size_list_frame.place(relheight=1, relwidth=.2)
 size_variable = tk.StringVar()
 
 #Adding Drink Sizes to Edit Menu
-add_sizes(sizes)
+add_sizes(menu.sizes)
 
 #Add-Ins Frame Config
 add_ins_frame = tk.Frame(edit_menu)
@@ -202,9 +250,18 @@ add_ins_frame.place(relheight=1, relwidth=.6, relx=.2)
 for column in range(3):
     add_ins_frame.columnconfigure(column, weight=1)
 
-add_check_state = {}
-
 #Adding Add-Ins to Edit Menu
-add_add_ins(add_ins_list)
+add_check_state = {}
+add_add_ins(menu.add_ins)
+
+#Edit Menu Submit Button Frame
+edit_submit_frame = tk.Frame(edit_menu)
+edit_submit_frame.place(relheight=.3, relwidth=.2, relx=.8, rely=.7)
+
+#Edit Menu Submit Button
+edit_submit = ttk.Button(edit_submit_frame, text="Submit", command=add_active_item)
+edit_submit.pack(padx=5, pady=5, expand=True, fill="both")
 
 root.mainloop()
+
+print(current_order_items)
