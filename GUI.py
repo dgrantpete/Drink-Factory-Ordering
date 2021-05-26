@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-from menu_logic import menu_import, OrderItem, Menu, CurrentOrderItem
+from menu_logic import menu_import, ActiveOrder, Menu, OrderItem
 from Dependencies.LabelPrinting import print_label
 
 """
@@ -78,7 +78,7 @@ def clear_edit_menu():
 #Creates New Drink in Edit Menu
 def drink_new(drink):
     clear_edit_menu()
-    current_item.base_item = drink
+    active_order.current_item_base = drink
     for add_in in menu.base_drinks[drink]:
         (add_check_state[add_in]).set(1)
     menus.select(edit_menu)
@@ -87,6 +87,7 @@ def drink_new(drink):
 #Sets Edit Menu to Options Specified by OrderItem object
 def drink_edit(order_item):
     clear_edit_menu()
+    active_order.current_item_base = order_item.base_item
     size_variable.set(order_item.size)
     for add_in in order_item.add_ins:
         (add_check_state[add_in]).set(1)
@@ -94,13 +95,12 @@ def drink_edit(order_item):
 
 #Returns OrderItem Object with Options Specified in Edit Menu
 def return_active_item():
-    return OrderItem(current_item.base_item, size_variable.get(), return_add_ins())
+    return OrderItem(active_order.current_item_base, size_variable.get(), return_add_ins())
 
 #Adds Drink with Currently Selected Options to Order List and Prints Label
 def add_active_item():
     active_drink = return_active_item()
-    current_order_items.append(active_drink)
-    order_list.insert("end", active_drink)
+    active_order.add_to_order(active_drink)
     #print_label(active_drink.summary())
     menus.select(order_menu)
     menus.hide(edit_menu)
@@ -108,24 +108,13 @@ def add_active_item():
 
 #Opens Edit Menu Configured to Selected Item
 def edit_selected():
-    drink_edit(current_order_items[order_list.curselection()[0]])
+    drink_edit(active_order.order_items[order_list.curselection()[0]])
+    remove_selected()
 
-#Delete Selected Item from current_order_items and order_list
+#Delete Selected Item from ActiveOrder and order_list
 def remove_selected():
-    current_order_items.pop(order_list.curselection()[0])
-    order_list.delete(order_list.curselection()[0])
-
-"""
-
-Menu Data Configuration
-
-"""
-
-menu = menu_import()
-
-current_item = CurrentOrderItem()
-
-current_order_items = []
+    print(order_list.get(order_list.curselection()))
+    active_order.remove_from_order(active_order.order_items[order_list.curselection()[0]])
 
 """
 
@@ -160,6 +149,8 @@ Menus Configuration
 
 """
 
+menu = menu_import()
+
 #Menu Selection
 menus = ttk.Notebook(root)
 menus.place(relwidth=1, relheight=1)
@@ -174,6 +165,11 @@ edit_menu = tk.Frame(menus)
 edit_menu.place(relheight=1, relwidth=1)
 menus.add(edit_menu, text="Edit")
 menus.hide(edit_menu)
+
+#Confirmation Menu Config
+confirm_menu = tk.Frame(menus)
+confirm_menu.place(relheight=1, relwidth=1)
+menus.add(confirm_menu, text="Confirmation")
 
 """
 
@@ -262,6 +258,25 @@ edit_submit_frame.place(relheight=.3, relwidth=.2, relx=.8, rely=.7)
 edit_submit = ttk.Button(edit_submit_frame, text="Submit", command=add_active_item)
 edit_submit.pack(padx=5, pady=5, expand=True, fill="both")
 
-root.mainloop()
+"""
 
-print(current_order_items)
+Confirmation Menu Setup
+
+"""
+
+#Order List and Price(s)
+test_text_box = ttk.LabelFrame(confirm_menu, text="Order Summary")
+test_text_box.place(relwidth=1, relheight=1)
+
+test_label = ttk.Label(test_text_box, text="Test\nTest\nTest")
+test_label.place(relwidth=1, relheight=1)
+"""
+
+Menu Data Configuration
+
+"""
+
+active_order = ActiveOrder(order_list)
+
+
+root.mainloop()

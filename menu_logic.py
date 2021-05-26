@@ -30,9 +30,24 @@ class OrderItem:
         summary += f"\n{self.price}"
         return summary
 
-class CurrentOrderItem:
-    def __init__(self):
-        self.base_item = None
+class ActiveOrder:
+    def __init__(self, listbox):
+        self.current_item_base = None
+        self.list_index = None
+        self.listbox = listbox
+        self.order_items = []
+    
+    def add_to_order(self, item):
+        self.order_items.append(item)
+        self.listbox.delete(0, "end")
+        for list_item in self.order_items:
+            self.listbox.insert("end", list_item)
+
+    def remove_from_order(self, item):
+        self.order_items.remove(item)
+        self.listbox.delete(0, "end")
+        for list_item in self.order_items:
+            self.listbox.insert("end", list_item)
 
 #Importing Menu Information and converting to dictionaries
 def menu_import():
