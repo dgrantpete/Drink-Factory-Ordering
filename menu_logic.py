@@ -18,10 +18,10 @@ class OrderItem:
         self.base_item = base_item
         self.size = size
         self.add_ins = item_add_ins
-        self.price = menu.sizes[size] + (len(item_add_ins) * menu.add_in_price)
+        self.price = round_float(menu.sizes[size] + (len(item_add_ins) * menu.add_in_price))
 
     def __str__(self):
-        return f'{self.size} {self.base_item} +{", ".join(self.add_ins)}'
+        return f'{self.base_item} {self.size} + {", ".join(self.add_ins)}'
     
     def summary(self):
         summary = f"{self.size}\n{self.base_item}"
@@ -48,6 +48,21 @@ class ActiveOrder:
         self.listbox.delete(0, "end")
         for list_item in self.order_items:
             self.listbox.insert("end", list_item)
+    
+    def order_summary(self):
+        order_summary_list = []
+        for order_item in self.order_items:
+            order_summary_list.append((order_item, order_item.price))
+        return order_summary_list
+
+    def total(self):
+        order_total = 0
+        for item in self.order_items:
+            order_total += item.price
+        return round_float(order_total)
+
+def round_float(float_value):
+    return float(format(float_value, '.2f'))
 
 #Importing Menu Information and converting to dictionaries
 def menu_import():

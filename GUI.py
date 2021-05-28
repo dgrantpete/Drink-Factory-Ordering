@@ -2,16 +2,17 @@ import tkinter as tk
 from tkinter import ttk
 from menu_logic import menu_import, ActiveOrder, Menu, OrderItem
 from Dependencies.LabelPrinting import print_label
-
 """
 
 User Configurable Variables
 
 """
 
-#Font Sizes
-ADD_IN_FONT_SIZE = 15
-SIZE_FONT_SIZE = 40
+#Font
+DEFAULT_FONT = "Verdana"
+SM_SIZE = 10
+MED_SIZE = 15
+LG_SIZE = 40
 
 #Initial Window Size Configuration
 INITIAL_WIDTH = 1600
@@ -98,13 +99,16 @@ def return_active_item():
     return OrderItem(active_order.current_item_base, size_variable.get(), return_add_ins())
 
 #Adds Drink with Currently Selected Options to Order List and Prints Label
-def add_active_item():
+def add_active_item(print_drink_label=True):
     active_drink = return_active_item()
     active_order.add_to_order(active_drink)
-    #print_label(active_drink.summary())
+    if print_drink_label:
+        print_label(active_drink.summary())
     menus.select(order_menu)
     menus.hide(edit_menu)
     clear_edit_menu()
+
+add_active_no_label = lambda:add_active_item(print_drink_label=False)
 
 #Opens Edit Menu Configured to Selected Item
 def edit_selected():
@@ -113,8 +117,22 @@ def edit_selected():
 
 #Delete Selected Item from ActiveOrder and order_list
 def remove_selected():
-    print(order_list.get(order_list.curselection()))
     active_order.remove_from_order(active_order.order_items[order_list.curselection()[0]])
+
+#Generates Final Order Summary for Confirmation Screen
+def generate_order_summary():
+    prices_label_text = "\n"
+    items_label_text = "\n"
+    for item, price in active_order.order_summary():
+        prices_label_text += f"{price}\n"
+        items_label_text += f"{item}\n"
+    prices_summary_variable.set(prices_label_text)
+    items_summary_variable.set(items_label_text)
+    total_variable.set(f"Total: {active_order.total()}")
+    menus.select(confirm_menu)
+    
+    
+        
 
 """
 
@@ -130,8 +148,9 @@ root.geometry(f'{INITIAL_WIDTH}x{INITIAL_HEIGHT}')
 
 #Style Configuration
 style = ttk.Style(root)
-style.configure("TRadiobutton", font=("Helvetica", SIZE_FONT_SIZE))
-style.configure("TCheckbutton", font=("Helvetica", ADD_IN_FONT_SIZE), background="#ebebeb")
+style.configure(".", font=(DEFAULT_FONT, MED_SIZE))
+style.configure("TCheckbutton", background="#ebebeb")
+style.configure("TRadiobutton", background="#ebebeb", font=(DEFAULT_FONT, LG_SIZE))
 
 style.map("TCheckbutton",
     foreground=[('selected', 'red')],
@@ -142,6 +161,8 @@ style.map("TRadiobutton",
     foreground=[('selected', 'red')],
     background=[('selected', '#b0b0b0')]
     )
+
+
 
 """
 
@@ -208,7 +229,7 @@ order_list = tk.Listbox(order_list_frame, font=10)
 order_list.pack(padx=10, pady=10, expand=True, fill="both")
 
 #Submit Button
-submit_button = ttk.Button(order_control, text="Submit")
+submit_button = ttk.Button(order_control, text="Submit", command=generate_order_summary)
 submit_button.grid(row=1, column=0, columnspan=2, sticky="nesw", padx=5, pady=5)
 
 #Edit Button
@@ -258,18 +279,42 @@ edit_submit_frame.place(relheight=.3, relwidth=.2, relx=.8, rely=.7)
 edit_submit = ttk.Button(edit_submit_frame, text="Submit", command=add_active_item)
 edit_submit.pack(padx=5, pady=5, expand=True, fill="both")
 
+#Edit Menu Submit Button (No Label)
+edit_submit = ttk.Button(edit_submit_frame, text="Submit (No Label)", command=add_active_no_label)
+edit_submit.pack(padx=5, pady=5, expand=True, fill="both")
+
 """
 
 Confirmation Menu Setup
 
 """
 
-#Order List and Price(s)
-test_text_box = ttk.LabelFrame(confirm_menu, text="Order Summary")
-test_text_box.place(relwidth=1, relheight=1)
+#Order Summary Frame
+summary_frame = ttk.LabelFrame(confirm_menu, text="Order Summary", labelanchor="n")
+summary_frame.place(relwidth=.3, relheight=.7)
 
-test_label = ttk.Label(test_text_box, text="Test\nTest\nTest")
-test_label.place(relwidth=1, relheight=1)
+#Order Summary Items
+
+items_summary_variable = tk.StringVar()
+
+items_summary = ttk.Label(summary_frame, textvar=items_summary_variable, anchor="nw", font=(DEFAULT_FONT, SM_SIZE))
+items_summary.place(relwidth=.9, relheight=.9)
+
+#Order Summary Prices
+
+prices_summary_variable = tk.StringVar()
+
+prices_summary = ttk.Label(summary_frame, textvar=prices_summary_variable, anchor="ne", font=(DEFAULT_FONT, SM_SIZE))
+prices_summary.place(relwidth=.1, relheight=.9, relx=.9)
+
+#Order Total
+
+total_variable = tk.StringVar()
+
+total_label = ttk.Label(summary_frame, textvar=total_variable, anchor="center")
+total_label.place(relwidth=1, relheight=.1, rely=.9)
+
+
 """
 
 Menu Data Configuration
@@ -277,6 +322,5 @@ Menu Data Configuration
 """
 
 active_order = ActiveOrder(order_list)
-
 
 root.mainloop()
