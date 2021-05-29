@@ -11,8 +11,8 @@ User Configurable Variables
 #Font
 DEFAULT_FONT = "Verdana"
 SM_SIZE = 10
-MED_SIZE = 15
-LG_SIZE = 40
+MED_SIZE = 13
+LG_SIZE = 25
 
 #Initial Window Size Configuration
 INITIAL_WIDTH = 1600
@@ -44,10 +44,16 @@ def add_grid_item(item):
 #Adds sizes to Edit Menu
 def add_sizes(sizes):
     size_list_frame.columnconfigure(0, weight=1)
-    for i, size in enumerate(sizes):
-        size_list_frame.rowconfigure(i, weight=1)
+    for size in sizes:
         size_radio = ttk.Radiobutton(size_list_frame, text=size, variable=size_variable, value=size)
-        size_radio.grid(row=i, column=0)
+        size_radio.pack(expand=True, fill="both")
+
+#Adds Soda Options to Edit Menu
+def add_sodas(sodas):
+    size_list_frame.columnconfigure(0, weight=1)
+    for soda in sodas:
+        soda_radio = ttk.Radiobutton(base_sodas_frame, text=soda, variable=soda_variable, value=soda)
+        soda_radio.pack(expand=True, fill="both")
 
 #Adds Add-Ins to Edit Menu
 def add_add_ins(add_ins):
@@ -60,7 +66,7 @@ def add_add_ins(add_ins):
         row = i // ADD_IN_COLUMNS
         column = i % ADD_IN_COLUMNS
         add_in_check.configure()
-        add_in_check.grid(row=row, column=column, sticky="nesw", padx=3, pady=3)
+        add_in_check.grid(row=row, column=column, sticky="nesw")
 
 #Returns a List of Selected Add-Ins
 def return_add_ins():
@@ -75,6 +81,7 @@ def clear_edit_menu():
     for value in add_check_state.values():
         value.set(0)
     size_variable.set("")
+    soda_variable.set("")
 
 #Creates New Drink in Edit Menu
 def drink_new(drink):
@@ -90,13 +97,14 @@ def drink_edit(order_item):
     clear_edit_menu()
     active_order.current_item_base = order_item.base_item
     size_variable.set(order_item.size)
+    soda_variable.set(order_item.soda)
     for add_in in order_item.add_ins:
         (add_check_state[add_in]).set(1)
     menus.select(edit_menu)
 
 #Returns OrderItem Object with Options Specified in Edit Menu
 def return_active_item():
-    return OrderItem(active_order.current_item_base, size_variable.get(), return_add_ins())
+    return OrderItem(active_order.current_item_base, size_variable.get(), soda_variable.get(), return_add_ins())
 
 #Adds Drink with Currently Selected Options to Order List and Prints Label
 def add_active_item(print_drink_label=True):
@@ -161,7 +169,6 @@ style.map("TRadiobutton",
     foreground=[('selected', 'red')],
     background=[('selected', '#b0b0b0')]
     )
-
 
 
 """
@@ -253,8 +260,8 @@ Edit Menu Setup
 """
 
 #Size List Frame Config
-size_list_frame = tk.Frame(edit_menu)
-size_list_frame.place(relheight=1, relwidth=.2)
+size_list_frame = ttk.LabelFrame(edit_menu, text="Size")
+size_list_frame.place(relheight=.7, relwidth=.2, relx=.8)
 
 size_variable = tk.StringVar()
 
@@ -262,7 +269,7 @@ size_variable = tk.StringVar()
 add_sizes(menu.sizes)
 
 #Add-Ins Frame Config
-add_ins_frame = tk.Frame(edit_menu)
+add_ins_frame = ttk.LabelFrame(edit_menu, text="Add-Ins")
 add_ins_frame.place(relheight=1, relwidth=.6, relx=.2)
 for column in range(3):
     add_ins_frame.columnconfigure(column, weight=1)
@@ -270,6 +277,15 @@ for column in range(3):
 #Adding Add-Ins to Edit Menu
 add_check_state = {}
 add_add_ins(menu.add_ins)
+
+#Base Sodas Frame Config
+base_sodas_frame = ttk.LabelFrame(edit_menu, text="Base Soda")
+base_sodas_frame.place(relwidth=0.2, relheight=1)
+
+soda_variable = tk.StringVar()
+
+#Adding Sodas to Edit Menu
+add_sodas(menu.sodas)
 
 #Edit Menu Submit Button Frame
 edit_submit_frame = tk.Frame(edit_menu)

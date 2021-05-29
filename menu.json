@@ -23,6 +23,15 @@
         "Savage": ["Raspberry", "Cheesecake", "Fresh Lime"]
     },
 
+    "sodas":[
+        "Root Beer",
+        "Sprite",
+        "Dr. Pepper",
+        "Coke",
+        "Pepsi",
+        "Fanta"
+    ],
+
     "prices":
     {
         "sizes":
