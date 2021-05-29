@@ -20,7 +20,8 @@
         "Sunrise": ["Strawberry", "Guava", "Coconut Cream"],
         "Ry-Guy": ["Peach", "Pineapple", "Coconut"],
         "My Boo": ["Tiger's Blood", "Pina Colada", "Cream"],
-        "Savage": ["Raspberry", "Cheesecake", "Fresh Lime"]
+        "Savage": ["Raspberry", "Cheesecake", "Fresh Lime"],
+        "Custom": []
     },
 
     "sodas":[
