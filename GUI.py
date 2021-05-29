@@ -307,7 +307,7 @@ Confirmation Menu Setup
 
 #Order Summary Frame
 summary_frame = ttk.LabelFrame(confirm_menu, text="Order Summary", labelanchor="n")
-summary_frame.place(relwidth=.3, relheight=.7)
+summary_frame.place(relwidth=.5, relheight=.7)
 
 #Order Summary Items
 

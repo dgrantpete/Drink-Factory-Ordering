@@ -34,8 +34,8 @@ class OrderItem:
             return f'{self.size} {self.soda}, {self.base_item}'
     
     def summary(self):
-        summary = f"{self.size}\n{self.base_item}"
-        for add_in in self.add_ins:
+        summary = f"{self.size} {self.soda}\n{self.base_item}"
+        for add_in in self.extra_add_ins:
             summary += f"\n+{add_in}"
         summary += f"\n{self.price}"
         return summary
